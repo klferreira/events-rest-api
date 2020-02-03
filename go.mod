@@ -3,6 +3,7 @@ module github.com/klferreira/events-rest-api
 go 1.13
 
 require (
+	github.com/crgimenes/goconfig v1.2.1 // indirect
 	github.com/globalsign/mgo v0.0.0-20181015135952-eeefdecb41b8
 	github.com/go-sql-driver/mysql v1.5.0 // indirect
 	github.com/gorilla/mux v1.7.3

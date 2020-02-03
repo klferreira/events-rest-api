@@ -1,3 +1,5 @@
+github.com/crgimenes/goconfig v1.2.1 h1:179CEiHWYDq+dwXSGumwuCRJRPt9+H15TNjuHfXh0vw=
+github.com/crgimenes/goconfig v1.2.1/go.mod h1:NLkiEPjGZF4p1jzt3S7stOW7z/MJqvCRwJuDmC7b8fw=
 github.com/globalsign/mgo v0.0.0-20181015135952-eeefdecb41b8 h1:DujepqpGd1hyOd7aW59XpK7Qymp8iy83xq74fLr21is=
 github.com/globalsign/mgo v0.0.0-20181015135952-eeefdecb41b8/go.mod h1:xkRDCp4j0OGD1HRkm4kmhM+pmpv3AKq5SU7GMg4oO/Q=
 github.com/go-sql-driver/mysql v1.5.0 h1:ozyZYNQW3x3HtqT1jira07DN2PArx2v7/mN66gGcHOs=

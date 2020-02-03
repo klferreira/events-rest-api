@@ -27,17 +27,16 @@ type Config struct {
 
 // MongoClient is an abstract wrapper for MongoDB operations
 type mongoClient struct {
-	dbname  string
 	session *mgo.Session
 }
 
-func NewMongoClient(url, dbname string) (*mongoClient, error) {
+func NewMongoClient(url string) (*mongoClient, error) {
 	session, err := mgo.Dial(url)
 	if err != nil {
 		return nil, err
 	}
 
-	return &mongoClient{dbname, session}, nil
+	return &mongoClient{session}, nil
 }
 
 func (c *mongoClient) find(col string, query interface{}) *mgo.Query {
@@ -80,7 +79,7 @@ func (c *mongoClient) DeleteAll(col string, sel interface{}) error {
 	s := c.session.Copy()
 	defer s.Close()
 
-	_, err sion.DB("").C(col).RemoveAll(sel)
+	_, err := s.DB("").C(col).RemoveAll(sel)
 	return err
 }
 
