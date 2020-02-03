@@ -1,0 +1,23 @@
+version: "3.7"
+services:
+  event-api:
+    build: .
+    container_name: events-api
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+    environment:
+      - API_PORT=3000
+      - DATABASE_URL=mongodb://root:toor@db:27017/events?authSource=admin
+  db:
+    image: mongo:3.4
+    container_name: events-db
+    # volumes:
+    #   - ./init-db.js:/docker-entrypoint-initdb.d/init-db.js
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=toor
+      - MONGO_INITDB_DATABASE=events
