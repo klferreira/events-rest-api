@@ -27,6 +27,7 @@ func Fetch(service event.Service) http.Handler {
 func Create() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte("Not implemented"))
 	})
 }
@@ -34,6 +35,7 @@ func Create() http.Handler {
 func Update() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte("Not implemented"))
 	})
 }
@@ -41,6 +43,7 @@ func Update() http.Handler {
 func Delete() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte("Not implemented"))
 	})
 }
