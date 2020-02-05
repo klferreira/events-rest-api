@@ -1,11 +1,11 @@
 package api
 
 import (
-	"log"
 	"net/http"
 
 	"github.com/gorilla/mux"
 	"github.com/klferreira/events-rest-api/api/handler"
+	"github.com/klferreira/events-rest-api/internal/event"
 	"github.com/klferreira/events-rest-api/pkg/mongo"
 )
 
@@ -19,13 +19,11 @@ type Config struct {
 	APIPort     string `cfg:"API_PORT" cfgDefault:"3000" cfgRequired:"true"`
 }
 
-func NewServer(config *Config, r *mux.Router) *Server {
-	db, err := mongo.NewMongoClient(config.DatabaseURL)
-	if err != nil {
-		log.Fatal(err)
-	}
+func NewServer(db mongo.Client, r *mux.Router) *Server {
+	repo := event.NewRepository(db)
+	service := event.NewService(repo)
 
-	handler.GetEventHandlers(r)
+	handler.GetEventHandlers(r, service)
 
 	return &Server{db, r}
 }
