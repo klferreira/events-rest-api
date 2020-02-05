@@ -1,12 +1,16 @@
 package model
 
-import "time"
+import (
+	"time"
+
+	"github.com/globalsign/mgo/bson"
+)
 
 type Event struct {
-	ID         int64       `json:"id"`
-	Name       string      `json:"name"`
-	Sessions   []time.Time `json:"sessions"`
-	Place      string      `json:"place"`
-	Tags       []string    `json:"tags"`
-	Interested int64       `json:"interested"`
+	ID         bson.ObjectId `json:"id" bson:"_id"`
+	Name       string        `json:"name" bson:"name"`
+	Sessions   []time.Time   `json:"sessions" bson:"sessions"`
+	Place      string        `json:"place" bson:"place"`
+	Tags       []string      `json:"tags" bson:"tags"`
+	Interested int64         `json:"interested" bson:"interested"`
 }
