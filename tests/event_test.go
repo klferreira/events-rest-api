@@ -10,6 +10,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/globalsign/mgo/bson"
 	"github.com/gorilla/mux"
 	"github.com/klferreira/events-rest-api/api"
 	"github.com/klferreira/events-rest-api/internal/model"
@@ -50,14 +51,10 @@ func getErrorServer() *api.Server {
 	return api.NewServer(db, router)
 }
 
-func prepareDB(db mongo.Client) error {
-	err := db.DeleteAll("events", nil)
-	if err != nil {
-		return err
-	}
-
+func setupDB(db mongo.Client) error {
 	events := []interface{}{
 		&model.Event{
+			ID:    bson.NewObjectId(),
 			Name:  "Random party",
 			Place: "Random venue",
 			Tags:  []string{"electronic", "dance"},
@@ -67,6 +64,7 @@ func prepareDB(db mongo.Client) error {
 			},
 		},
 		&model.Event{
+			ID:    bson.NewObjectId(),
 			Name:  "AC/DC Live Performance",
 			Place: "Another random venue",
 			Tags:  []string{"rock", "classic-rock", "live"},
@@ -79,7 +77,11 @@ func prepareDB(db mongo.Client) error {
 	return db.Insert("events", events...)
 }
 
-func TestMain(t *testing.M) {
+func tearDown(db mongo.Client) error {
+	return db.DeleteAll("events", nil)
+}
+
+func init() {
 	config := &api.Config{
 		DatabaseURL: "mongodb://root:toor@localhost:27017/test?authSource=admin",
 	}
@@ -91,8 +93,14 @@ func TestMain(t *testing.M) {
 
 	server = getServer()
 	errorServer = getErrorServer()
+}
 
-	os.Exit(t.Run())
+func TestMain(m *testing.M) {
+	setupDB(db)
+	code := m.Run()
+	tearDown(db)
+
+	os.Exit(code)
 }
 
 func TestFetchEvents(t *testing.T) {
