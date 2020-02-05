@@ -2,8 +2,10 @@ package handler
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 
+	"github.com/globalsign/mgo/bson"
 	"github.com/gorilla/mux"
 	"github.com/klferreira/events-rest-api/api/validator"
 	"github.com/klferreira/events-rest-api/internal/event"
@@ -71,11 +73,24 @@ func Update(service event.Service) http.Handler {
 	})
 }
 
-func Delete() http.Handler {
+func Delete(service event.Service) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte("Not implemented"))
+
+		params := mux.Vars(r)
+		id, ok := params["id"]
+		if !ok || !bson.IsObjectIdHex(id) {
+			w.WriteHeader(http.StatusBadRequest)
+			httputil.GetJSONResponse("event", nil, errors.New("missing or invalid event id"))
+			return
+		}
+
+		_, err := service.Delete(r.Context(), id)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			httputil.GetJSONResponse("event", nil, err).Write(w)
+			return
+		}
 	})
 }
 
@@ -83,5 +98,5 @@ func GetEventHandlers(r *mux.Router, service event.Service) {
 	r.Handle("/v1/events", Fetch(service)).Methods(http.MethodGet)
 	r.Handle("/v1/events", Create(service)).Methods(http.MethodPost)
 	r.Handle("/v1/events", Update(service)).Methods(http.MethodPut)
-	r.Handle("/v1/events", Delete()).Methods(http.MethodDelete)
+	r.Handle("/v1/events/{id}", Delete(service)).Methods(http.MethodDelete)
 }

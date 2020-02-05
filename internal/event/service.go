@@ -31,6 +31,6 @@ func (s *service) Update(ctx context.Context, event *model.Event) (*model.Event,
 	return s.repo.Update(ctx, event)
 }
 
-func (s *service) Delete(ctx context.Context, event *model.Event) (*model.Event, error) {
-	return nil, nil
+func (s *service) Delete(ctx context.Context, id string) (bool, error) {
+	return s.repo.Delete(ctx, id)
 }

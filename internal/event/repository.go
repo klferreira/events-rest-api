@@ -42,6 +42,11 @@ func (r *repository) Update(ctx context.Context, event *model.Event) (*model.Eve
 	return event, nil
 }
 
-func (r *repository) Delete(ctx context.Context, event *model.Event) (*model.Event, error) {
-	return nil, nil
+func (r *repository) Delete(ctx context.Context, id string) (bool, error) {
+	err := r.db.DeleteOne("events", id)
+	if err != nil {
+		return false, err
+	}
+
+	return true, nil
 }
