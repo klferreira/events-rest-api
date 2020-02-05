@@ -244,7 +244,7 @@ func TestUpdateEvent(t *testing.T) {
 
 		server.ServeHTTP(response, request)
 
-		if response.Code != http.StatusUnprocessableEntity {
+		if response.Code != http.StatusBadRequest {
 			t.Errorf("status code expected was %d, but got %d", http.StatusBadRequest, response.Code)
 			t.FailNow()
 		}

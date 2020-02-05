@@ -38,7 +38,7 @@ func Create(service event.Service) http.Handler {
 
 		result, err := service.Create(r.Context(), event)
 		if err != nil {
-			w.WriteHeader(http.StatusBadRequest)
+			w.WriteHeader(http.StatusInternalServerError)
 			httputil.GetJSONResponse("event", nil, err).Write(w)
 			return
 		}
@@ -48,10 +48,26 @@ func Create(service event.Service) http.Handler {
 	})
 }
 
-func Update() http.Handler {
+func Update(service event.Service) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 
+		event, err := validator.ValidateEventUpdateRequest(r)
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			httputil.GetJSONResponse("event", nil, err).Write(w)
+			return
+		}
+
+		result, err := service.Update(r.Context(), event)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			httputil.GetJSONResponse("event", nil, err).Write(w)
+			return
+		}
+
+		w.WriteHeader(http.StatusOK)
+		httputil.GetJSONResponse("event", result, nil).Write(w)
 	})
 }
 
@@ -66,6 +82,6 @@ func Delete() http.Handler {
 func GetEventHandlers(r *mux.Router, service event.Service) {
 	r.Handle("/v1/events", Fetch(service)).Methods(http.MethodGet)
 	r.Handle("/v1/events", Create(service)).Methods(http.MethodPost)
-	r.Handle("/v1/events", Update()).Methods(http.MethodPut)
+	r.Handle("/v1/events", Update(service)).Methods(http.MethodPut)
 	r.Handle("/v1/events", Delete()).Methods(http.MethodDelete)
 }

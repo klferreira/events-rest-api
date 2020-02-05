@@ -28,7 +28,7 @@ func (s *service) Create(ctx context.Context, event *model.Event) (*model.Event,
 }
 
 func (s *service) Update(ctx context.Context, event *model.Event) (*model.Event, error) {
-	return nil, nil
+	return s.repo.Update(ctx, event)
 }
 
 func (s *service) Delete(ctx context.Context, event *model.Event) (*model.Event, error) {

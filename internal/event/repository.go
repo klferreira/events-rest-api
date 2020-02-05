@@ -33,7 +33,13 @@ func (r *repository) Create(ctx context.Context, event *model.Event) (*model.Eve
 }
 
 func (r *repository) Update(ctx context.Context, event *model.Event) (*model.Event, error) {
-	return nil, nil
+	selector := bson.M{"_id": event.ID}
+	err := r.db.Update("events", selector, event)
+	if err != nil {
+		return nil, err
+	}
+
+	return event, nil
 }
 
 func (r *repository) Delete(ctx context.Context, event *model.Event) (*model.Event, error) {
