@@ -13,8 +13,8 @@ services:
   db:
     image: mongo:3.4
     container_name: events-db
-    # volumes:
-    #   - ./init-db.js:/docker-entrypoint-initdb.d/init-db.js
+    volumes:
+      - ./init-db.js:/docker-entrypoint-initdb.d/init-db.js
     ports:
       - "27017:27017"
     environment:
