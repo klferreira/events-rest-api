@@ -3,6 +3,7 @@ package tests
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -247,6 +248,52 @@ func TestUpdateEvent(t *testing.T) {
 		if response.Code != http.StatusBadRequest {
 			t.Errorf("status code expected was %d, but got %d", http.StatusBadRequest, response.Code)
 			t.FailNow()
+		}
+	})
+}
+
+func TestDeleteEvent(t *testing.T) {
+	t.Run("should successfully delete an event", func(t *testing.T) {
+		event := &model.Event{}
+
+		err := db.FindOne("events", bson.M{}, event)
+		if err != nil {
+			t.Error("couldn't find a documento to be updated")
+		}
+
+		url := fmt.Sprintf("/v1/events/%s", event.ID.Hex())
+		request := httptest.NewRequest(http.MethodDelete, url, nil)
+		response := httptest.NewRecorder()
+
+		server.ServeHTTP(response, request)
+
+		if response.Code != http.StatusOK {
+			t.Errorf("status code expected was %d, but got %d", http.StatusOK, response.Code)
+			t.FailNow()
+		}
+
+		err = db.FindOne("events", bson.M{"_id": event.ID}, &model.Event{})
+		if err != nil {
+			t.Errorf("event with id %s was not expected to be found", event.ID.Hex())
+		}
+	})
+
+	t.Run("should fail at deleting an event", func(t *testing.T) {
+		event := &model.Event{}
+
+		request := httptest.NewRequest(http.MethodDelete, "/v1/events/notvalid", nil)
+		response := httptest.NewRecorder()
+
+		server.ServeHTTP(response, request)
+
+		if response.Code != http.StatusOK {
+			t.Errorf("status code expected was %d, but got %d", http.StatusOK, response.Code)
+			t.FailNow()
+		}
+
+		err := db.FindOne("events", bson.M{"_id": event.ID}, &model.Event{})
+		if err != nil {
+			t.Errorf("event with id %s was not expected to be found", event.ID.Hex())
 		}
 	})
 }
