@@ -3,6 +3,7 @@ package tests
 import (
 	"bytes"
 	"encoding/json"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"net/http/httptest"
@@ -153,11 +154,9 @@ func TestCreateEvent(t *testing.T) {
 
 		server.ServeHTTP(response, request)
 
-		got := response.Code
-		want := http.StatusOK
-
-		if got != want {
-			t.Errorf("got %d, want %d", got, want)
+		if response.Code != http.StatusCreated {
+			t.Errorf("status code expected was %d, but got %d", http.StatusCreated, response.Code)
+			t.FailNow()
 		}
 	})
 
@@ -178,11 +177,76 @@ func TestCreateEvent(t *testing.T) {
 
 		server.ServeHTTP(response, request)
 
-		got := response.Code
-		want := http.StatusBadRequest
+		if response.Code != http.StatusBadRequest {
+			t.Errorf("status code expected was %d, but got %d", http.StatusBadRequest, response.Code)
+			t.FailNow()
+		}
+	})
+}
+
+func TestUpdateEvent(t *testing.T) {
+	t.Run("should update an existing event", func(t *testing.T) {
+		event := &model.Event{}
+
+		err := db.FindOne("events", bson.M{}, event)
+		if err != nil {
+			t.Error("couldn't find a documento to be updated")
+		}
+
+		event.Name = "Updated event"
+
+		bs, _ := json.Marshal(event)
+
+		request := httptest.NewRequest(http.MethodPut, "/v1/events", bytes.NewReader(bs))
+		response := httptest.NewRecorder()
+
+		server.ServeHTTP(response, request)
+
+		if response.Code != http.StatusOK {
+			t.Errorf("status code expected was %d, but got %d", http.StatusOK, response.Code)
+			t.FailNow()
+		}
+
+		bresp, err := ioutil.ReadAll(response.Result().Body)
+		if err != nil {
+			t.Errorf("could not read response body")
+			t.FailNow()
+		}
+
+		updateResponse := map[string]map[string]*model.Event{}
+		err = json.Unmarshal(bresp, &updateResponse)
+		if err != nil {
+			t.Errorf("could not unmarshal response body")
+			t.FailNow()
+		}
+
+		updatedEvent := updateResponse["data"]["event"]
+
+		got := updatedEvent.Name
+		want := event.Name
 
 		if got != want {
-			t.Errorf("got %d, want %d", got, want)
+			t.Errorf("got %s, want %s", got, want)
+		}
+	})
+
+	t.Run("should fail at updating an event", func(t *testing.T) {
+		event := &model.Event{
+			Name:  "New Year Celebration",
+			Place: "Madison Square Garden",
+			Tags:  []string{"new-year"},
+		}
+
+		bs, _ := json.Marshal(event)
+
+		request := httptest.NewRequest(http.MethodPut, "/v1/events", bytes.NewReader(bs))
+		response := httptest.NewRecorder()
+
+		server.ServeHTTP(response, request)
+
+		if response.Code != http.StatusUnprocessableEntity {
+			t.Errorf("status code expected was %d, but got %d", http.StatusBadRequest, response.Code)
+			t.FailNow()
 		}
 	})
 }
