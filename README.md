@@ -12,10 +12,10 @@ Utilize o seguinte comando do Makefile contido na raiz do projeto para construir
     make build
 ```
 
-E então, para criar os containers:
+E então, para subir os containers:
 ```
     make up
 ```
 
 Após isso a API estará rodando na porta `:3000`.
-Os endpoints para dos eventos estão disponívels como (`GET`, `POST`, `PUT`, `DELETE`) em `/v1/events`.
+Os endpoints para os eventos estão disponívels como (`GET`, `POST`, `PUT`, `DELETE`) em `/v1/events`.
