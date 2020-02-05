@@ -3,12 +3,32 @@ package event
 import (
 	"context"
 
-	"github.com/klferreira/events-rest-api/pkg/model"
+	"github.com/globalsign/mgo/bson"
+	"github.com/klferreira/events-rest-api/internal/model"
+	"github.com/klferreira/events-rest-api/pkg/mongo"
 )
 
-type Repository interface {
-	Get(ctx context.Context, filters interface{}) ([]*model.Event, error)
-	Create(ctx context.Context, event *model.Event) (*model.Event, error)
-	Update(ctx context.Context, event *model.Event) (*model.Event, error)
-	Delete(ctx context.Context, event *model.Event) (*model.Event, error)
+type repository struct {
+	db mongo.Client
+}
+
+func NewRepository(db mongo.Client) Repository {
+	return &repository{db}
+}
+
+func (r *repository) Get(ctx context.Context, filters interface{}) (events []*model.Event, err error) {
+	err = r.db.FindAll("events", bson.M{}, &events)
+	return
+}
+
+func (r *repository) Create(ctx context.Context, event *model.Event) (*model.Event, error) {
+	return nil, nil
+}
+
+func (r *repository) Update(ctx context.Context, event *model.Event) (*model.Event, error) {
+	return nil, nil
+}
+
+func (r *repository) Delete(ctx context.Context, event *model.Event) (*model.Event, error) {
+	return nil, nil
 }

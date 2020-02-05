@@ -3,12 +3,34 @@ package event
 import (
 	"context"
 
-	"github.com/klferreira/events-rest-api/pkg/model"
+	"github.com/klferreira/events-rest-api/internal/model"
 )
 
-type Service interface {
-	Fetch(ctx context.Context, filters interface{}) ([]*model.Event, error)
-	Create(ctx context.Context, event *model.Event) (*model.Event, error)
-	Update(ctx context.Context, event *model.Event) (*model.Event, error)
-	Delete(ctx context.Context, event *model.Event) (*model.Event, error)
+type service struct {
+	repo Repository
+}
+
+func NewService(repo Repository) Service {
+	return &service{repo}
+}
+
+func (s *service) Fetch(ctx context.Context, filters interface{}) ([]*model.Event, error) {
+	events, err := s.repo.Get(ctx, filters)
+	if err == nil && events == nil {
+		return []*model.Event{}, nil
+	}
+
+	return events, err
+}
+
+func (s *service) Create(ctx context.Context, event *model.Event) (*model.Event, error) {
+	return nil, nil
+}
+
+func (s *service) Update(ctx context.Context, event *model.Event) (*model.Event, error) {
+	return nil, nil
+}
+
+func (s *service) Delete(ctx context.Context, event *model.Event) (*model.Event, error) {
+	return nil, nil
 }

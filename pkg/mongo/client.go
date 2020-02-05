@@ -39,19 +39,22 @@ func NewMongoClient(url string) (*mongoClient, error) {
 	return &mongoClient{session}, nil
 }
 
-func (c *mongoClient) find(col string, query interface{}) *mgo.Query {
-	s := c.session.Copy()
-	defer s.Close()
-
+func (c *mongoClient) find(s *mgo.Session, col string, query interface{}) *mgo.Query {
 	return s.DB("").C(col).Find(query)
 }
 
 func (c *mongoClient) FindOne(col string, query interface{}, result interface{}) error {
-	return c.find(col, query).One(result)
+	s := c.session.Copy()
+	defer s.Close()
+
+	return c.find(s, col, query).One(result)
 }
 
 func (c *mongoClient) FindAll(col string, query interface{}, result interface{}) error {
-	return c.find(col, query).All(result)
+	s := c.session.Copy()
+	defer s.Close()
+
+	return c.find(s, col, query).All(result)
 }
 
 func (c *mongoClient) Insert(col string, docs ...interface{}) error {
