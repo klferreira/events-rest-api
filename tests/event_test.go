@@ -16,18 +16,22 @@ import (
 	"github.com/klferreira/events-rest-api/pkg/mongo"
 )
 
+var db mongo.Client
 var server *api.Server
+
+var errorDb mongo.Client
 var errorServer *api.Server
 
-func getServer() *api.Server {
-	testConfig := &api.Config{
-		DatabaseURL: "mongodb://root:toor@localhost:27017/test?authSource=admin",
-	}
-
-	db, err := mongo.NewMongoClient(testConfig.DatabaseURL)
+func getTestDBClient(url string) mongo.Client {
+	db, err := mongo.NewMongoClient(url)
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	return db
+}
+
+func getServer() *api.Server {
 
 	router := mux.NewRouter()
 
@@ -46,7 +50,44 @@ func getErrorServer() *api.Server {
 	return api.NewServer(db, router)
 }
 
+func prepareDB(db mongo.Client) error {
+	err := db.DeleteAll("events", nil)
+	if err != nil {
+		return err
+	}
+
+	events := []interface{}{
+		&model.Event{
+			Name:  "Random party",
+			Place: "Random venue",
+			Tags:  []string{"electronic", "dance"},
+			Sessions: []time.Time{
+				time.Now().Add(72 * time.Hour),
+				time.Now().Add(48 * time.Hour),
+			},
+		},
+		&model.Event{
+			Name:  "AC/DC Live Performance",
+			Place: "Another random venue",
+			Tags:  []string{"rock", "classic-rock", "live"},
+			Sessions: []time.Time{
+				time.Now().Add(24 * time.Hour),
+			},
+		},
+	}
+
+	return db.Insert("events", events...)
+}
+
 func TestMain(t *testing.M) {
+	config := &api.Config{
+		DatabaseURL: "mongodb://root:toor@localhost:27017/test?authSource=admin",
+	}
+
+	errConfig := &api.Config{}
+
+	db = getTestDBClient(config.DatabaseURL)
+	errorDb = getTestDBClient(errConfig.DatabaseURL)
 
 	server = getServer()
 	errorServer = getErrorServer()
