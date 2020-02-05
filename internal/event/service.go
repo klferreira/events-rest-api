@@ -2,7 +2,6 @@ package event
 
 import (
 	"context"
-	"errors"
 
 	"github.com/klferreira/events-rest-api/internal/model"
 )
@@ -25,10 +24,6 @@ func (s *service) Fetch(ctx context.Context, filters interface{}) ([]*model.Even
 }
 
 func (s *service) Create(ctx context.Context, event *model.Event) (*model.Event, error) {
-	if len(event.Name) < 5 {
-		return nil, errors.New("event name should be at least 5 chars long")
-	}
-
 	return s.repo.Create(ctx, event)
 }
 

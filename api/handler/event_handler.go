@@ -2,12 +2,11 @@ package handler
 
 import (
 	"encoding/json"
-	"io/ioutil"
 	"net/http"
 
 	"github.com/gorilla/mux"
+	"github.com/klferreira/events-rest-api/api/validator"
 	"github.com/klferreira/events-rest-api/internal/event"
-	"github.com/klferreira/events-rest-api/internal/model"
 	"github.com/klferreira/events-rest-api/pkg/httputil"
 )
 
@@ -30,38 +29,29 @@ func Create(service event.Service) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 
-		body, err := ioutil.ReadAll(r.Body)
+		event, err := validator.ValidateEventCreateRequest(r)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
 			httputil.GetJSONResponse("event", nil, err).Write(w)
 			return
 		}
 
-		event := &model.Event{}
-
-		err = json.Unmarshal(body, event)
+		result, err := service.Create(r.Context(), event)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
 			httputil.GetJSONResponse("event", nil, err).Write(w)
 			return
 		}
 
-		event, err = service.Create(r.Context(), event)
-		if err != nil {
-			w.WriteHeader(http.StatusBadRequest)
-			httputil.GetJSONResponse("event", nil, err).Write(w)
-			return
-		}
-
-		httputil.GetJSONResponse("event", event, nil).Write(w)
+		w.WriteHeader(http.StatusCreated)
+		httputil.GetJSONResponse("event", result, nil).Write(w)
 	})
 }
 
 func Update() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte("Not implemented"))
+
 	})
 }
 
