@@ -22,7 +22,14 @@ func (r *repository) Get(ctx context.Context, filters interface{}) (events []*mo
 }
 
 func (r *repository) Create(ctx context.Context, event *model.Event) (*model.Event, error) {
-	return nil, nil
+	event.ID = bson.NewObjectId()
+
+	err := r.db.Insert("events", event)
+	if err != nil {
+		return nil, err
+	}
+
+	return event, nil
 }
 
 func (r *repository) Update(ctx context.Context, event *model.Event) (*model.Event, error) {

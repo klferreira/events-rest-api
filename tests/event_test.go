@@ -179,7 +179,7 @@ func TestCreateEvent(t *testing.T) {
 		server.ServeHTTP(response, request)
 
 		got := response.Code
-		want := http.StatusOK
+		want := http.StatusBadRequest
 
 		if got != want {
 			t.Errorf("got %d, want %d", got, want)
