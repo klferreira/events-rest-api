@@ -88,7 +88,7 @@ func Delete(service event.Service) http.Handler {
 		id, ok := params["id"]
 		if !ok || !bson.IsObjectIdHex(id) {
 			w.WriteHeader(http.StatusBadRequest)
-			httputil.GetJSONResponse("event", nil, errors.New("missing or invalid event id"))
+			httputil.GetJSONResponse("event", nil, errors.New("missing or invalid event id")).Write(w)
 			return
 		}
 
@@ -101,9 +101,34 @@ func Delete(service event.Service) http.Handler {
 	})
 }
 
+func AddInterest(service event.Service) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+
+		params := mux.Vars(r)
+		id, ok := params["id"]
+		if !ok || !bson.IsObjectIdHex(id) {
+			w.WriteHeader(http.StatusBadRequest)
+			httputil.GetJSONResponse("event", nil, errors.New("missing or invalid event id"))
+			return
+		}
+
+		result, err := service.AddInterest(r.Context(), id)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			httputil.GetJSONResponse("event", nil, err).Write(w)
+			return
+		}
+
+		w.WriteHeader(http.StatusOK)
+		httputil.GetJSONResponse("event", result, nil).Write(w)
+	})
+}
+
 func GetEventHandlers(r *mux.Router, service event.Service) {
 	r.Handle("/v1/events", Fetch(service)).Methods(http.MethodGet)
 	r.Handle("/v1/events", Create(service)).Methods(http.MethodPost)
 	r.Handle("/v1/events", Update(service)).Methods(http.MethodPut)
 	r.Handle("/v1/events/{id}", Delete(service)).Methods(http.MethodDelete)
+	r.Handle("/v1/events/{id}/add-interest", AddInterest(service)).Methods(http.MethodPatch)
 }

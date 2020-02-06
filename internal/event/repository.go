@@ -21,6 +21,17 @@ func (r *repository) Get(ctx context.Context, filters interface{}) (events []*mo
 	return
 }
 
+func (r *repository) Find(ctx context.Context, id string) (*model.Event, error) {
+	event := &model.Event{}
+
+	selector := bson.M{"_id": bson.ObjectIdHex(id)}
+	if err := r.db.FindOne("events", selector, event); err != nil {
+		return nil, err
+	}
+
+	return event, nil
+}
+
 func (r *repository) Create(ctx context.Context, event *model.Event) (*model.Event, error) {
 	event.ID = bson.NewObjectId()
 

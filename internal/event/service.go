@@ -31,6 +31,22 @@ func (s *service) Update(ctx context.Context, event *model.Event) (*model.Event,
 	return s.repo.Update(ctx, event)
 }
 
+func (s *service) AddInterest(ctx context.Context, id string) (*model.Event, error) {
+	event, err := s.repo.Find(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	event.Interested++
+
+	event, err = s.repo.Update(ctx, event)
+	if err != nil {
+		return nil, err
+	}
+
+	return event, nil
+}
+
 func (s *service) Delete(ctx context.Context, id string) (bool, error) {
 	return s.repo.Delete(ctx, id)
 }
