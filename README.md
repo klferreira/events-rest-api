@@ -3,9 +3,9 @@ Implementação do [desafio de back-end](https://github.com/ingresse/backend-tes
 
 O teste consiste em escrever uma API REST que disponibiliza endpoints de buscar, criar, atualizar e deletar eventos em um banco de dados.
 
-# Executando
+## Executando
 
-## Makefile
+### Makefile
 
 Utilize o seguinte comando do Makefile contido na raiz do projeto para construir as imagens dos serviços
 ```
@@ -18,4 +18,25 @@ E então, para subir os containers:
 ```
 
 Após isso a API estará rodando na porta `:3000`.
-Os endpoints para os eventos estão disponívels como (`GET`, `POST`, `PUT`, `DELETE`) em `/v1/events`.
+
+## Testando
+
+Para rodar os testes de funcionalidade execute
+```
+    make test
+```
+
+## Endpoints
+
+Os endpoints disponibilizados por esta API são os seguintes:
+
+- `GET -> /v1/events` (Busca por todos os eventos)
+    - Obs.: Este endpoint pode receber um ou mais dos seguintes parâmetros de URL: [`name`, `place`, `tags`, `interested`, `sessions`]. (As buscas serão sempre por valores identicos aos recebidos na URL).
+
+- `POST -> /v1/events` (Cria um novo evento)
+
+- `PUT -> /v1/events` (Atualiza um evento existente)
+
+- `PATCH -> /v1/events/{id}/add-interest` (Incrementa o número de "interessados" em um evento)
+
+- `DELETE -> /v1/events/{id}` (Remove um evento do banco de dados)
