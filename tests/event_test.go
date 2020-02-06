@@ -133,6 +133,45 @@ func TestFetchEvents(t *testing.T) {
 			t.Errorf("got %d, want %d", got, want)
 		}
 	})
+
+	t.Run("should successfully fetch events filtering by tag", func(t *testing.T) {
+		request := httptest.NewRequest(http.MethodGet, "/v1/events", nil)
+		q := request.URL.Query()
+		q.Add("tags", "electronic")
+		q.Add("tags", "dance")
+		request.URL.RawQuery = q.Encode()
+		response := httptest.NewRecorder()
+
+		server.ServeHTTP(response, request)
+
+		expectedStatusCode := http.StatusOK
+
+		if response.Code != expectedStatusCode {
+			t.Errorf("status code expected was %d, but got %d", expectedStatusCode, response.Code)
+			t.FailNow()
+		}
+
+		bresp, err := ioutil.ReadAll(response.Result().Body)
+		if err != nil {
+			t.Errorf("could not read response body")
+			t.FailNow()
+		}
+
+		resBody := map[string]map[string][]*model.Event{}
+		err = json.Unmarshal(bresp, &resBody)
+		if err != nil {
+			t.Errorf("could not unmarshal response body")
+			t.FailNow()
+		}
+
+		events, _ := resBody["data"]["events"]
+
+		eventsCount := len(events)
+		expectedEventsCount := 1
+		if eventsCount != expectedEventsCount {
+			t.Errorf("expected event count was %d, but got %d", expectedEventsCount, eventsCount)
+		}
+	})
 }
 
 func TestCreateEvent(t *testing.T) {
