@@ -17,7 +17,7 @@ func NewRepository(db mongo.Client) Repository {
 }
 
 func (r *repository) Get(ctx context.Context, filters interface{}) (events []*model.Event, err error) {
-	err = r.db.FindAll("events", bson.M{}, &events)
+	err = r.db.FindAll("events", filters, &events)
 	return
 }
 

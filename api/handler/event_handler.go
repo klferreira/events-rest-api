@@ -16,7 +16,14 @@ func Fetch(service event.Service) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 
-		events, err := service.Fetch(r.Context(), nil)
+		filters, err := validator.FetchEventRequestForm(r)
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			httputil.GetJSONResponse("event", nil, err).Write(w)
+			return
+		}
+
+		events, err := service.Fetch(r.Context(), filters)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 		}
