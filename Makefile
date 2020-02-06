@@ -6,3 +6,6 @@ up:
 
 down:
 	docker-compose stop
+
+test:
+	go test ./tests
