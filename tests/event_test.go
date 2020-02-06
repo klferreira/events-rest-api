@@ -329,3 +329,48 @@ func TestDeleteEvent(t *testing.T) {
 		}
 	})
 }
+
+func TestAddInterest(t *testing.T) {
+	t.Run("should successfully increment an event's interest amount", func(t *testing.T) {
+		event := &model.Event{}
+
+		err := db.FindOne("events", bson.M{}, event)
+		if err != nil {
+			t.Error("couldn't find a documento to be updated")
+		}
+
+		url := fmt.Sprintf("/v1/events/%s/add-interest", event.ID.Hex())
+		request := httptest.NewRequest(http.MethodPatch, url, nil)
+		response := httptest.NewRecorder()
+
+		server.ServeHTTP(response, request)
+
+		if response.Code != http.StatusOK {
+			t.Errorf("status code expected was %d, but got %d", http.StatusOK, response.Code)
+			t.FailNow()
+		}
+
+		updatedEvent := &model.Event{}
+
+		err = db.FindOne("events", bson.M{}, updatedEvent)
+		if err != nil {
+			t.Error("couldn't find a documento to be updated")
+		}
+
+		if updatedEvent.Interested != (event.Interested + 1) {
+			t.Errorf("event's interest amount did not increment")
+		}
+	})
+
+	t.Run("should fail at incrementing an event's interest amount", func(t *testing.T) {
+		request := httptest.NewRequest(http.MethodPatch, "/v1/events/notvalid/add-interest", nil)
+		response := httptest.NewRecorder()
+
+		server.ServeHTTP(response, request)
+
+		if response.Code != http.StatusBadRequest {
+			t.Errorf("status code expected was %d, but got %d", http.StatusBadRequest, response.Code)
+			t.FailNow()
+		}
+	})
+}
